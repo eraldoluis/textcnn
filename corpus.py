@@ -106,6 +106,6 @@ class Corpus(object):
         y = np.append(pos_y, neg_y, axis=0)
 
         # Shuffle train
-        indices = np.random.permutation(np.arange(size))
+        indices = np.random.permutation(np.arange(2*size))
         self.x_data = x[indices]
         self.y_data = y[indices]
