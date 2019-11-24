@@ -129,7 +129,7 @@ class ETextCNN(nn.Module):
     """
 
     def __init__(self, config, pre_trained_emb=None):
-        super(ETextCNN, self).__init__(config, pre_trained_emb)
+        super(ETextCNN, self).__init__()
 
         self.encoder = TextCNNEncoder(config, pre_trained_emb=pre_trained_emb)  # text encoder
         self.dropout = nn.Dropout(config.dropout_prob)  # a dropout layer
@@ -138,8 +138,8 @@ class ETextCNN(nn.Module):
 
     def forward(self, inputs):
         # Conv1d takes in (batch, channels, seq_len), but raw embedded is (batch, seq_len, channels)
-        embedded = self.embedding(inputs).permute(0, 2, 1)
-        x_c = [self.conv_and_max_pool(embedded, k) for k in self.convs]  # convolution and global max pooling
+        embedded = self.encoder.embedding(inputs).permute(0, 2, 1)
+        x_c = [TextCNNEncoder.conv_and_max_pool(embedded, k) for k in self.encoder.convs]  # convolution and global max pooling
         # x_cat = self.dropout(torch.cat(x, 1))
         x_cat = torch.cat(x_c, 1)
         x_h = self.dropout(F.relu(self.fc1(x_cat)))

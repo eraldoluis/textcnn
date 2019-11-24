@@ -84,3 +84,28 @@ class Corpus(object):
         splits.insert(0, train)
 
         return splits
+
+    def sub_sampling(self, size):
+        # pega o num de exem da classe menos contemplada no cjt de treino, seleciona a mesma qtd
+        # da outra classe e entao pega 2n exemplos do dev e test. um novo split de tamanho 2n é gerado
+        n_mask = np.logical_not(np.array(self.y_data, dtype=bool))
+        mask = np.array(self.y_data, dtype=bool)
+
+        pos = self.x_data[mask].reshape(-1, self.sentence_size)  # [:size]
+        neg = self.x_data[n_mask].reshape(-1, self.sentence_size)  # [: pos.shape[0]]
+
+        index_p = np.random.permutation(np.arange(pos.shape[0]))[:size]
+        index_n = np.random.permutation(np.arange(neg.shape[0]))[:size]
+        pos = pos[index_p]
+        neg = neg[index_n]
+
+        pos_y = np.ones(pos.shape[0])
+        neg_y = np.zeros(neg.shape[0])
+
+        x = np.append(pos, neg, axis=0)
+        y = np.append(pos_y, neg_y, axis=0)
+
+        # Shuffle train
+        indices = np.random.permutation(np.arange(size))
+        self.x_data = x[indices]
+        self.y_data = y[indices]
