@@ -52,7 +52,7 @@ if __name__ == '__main__':
     config.num_epochs = 40
     config.batch_size = 128
     config.stratified = False
-    config.balanced = False
-    config.stratified_batch = True
+    config.balanced = True
+    config.stratified_batch = False
     output_dir = "results/out_cv_shuffle_split_{}".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f"))
     run(config, output_dir, num_splits=20, patience=5)
