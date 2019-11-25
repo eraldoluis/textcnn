@@ -4,7 +4,7 @@ from pprint import pprint
 from torch import nn, optim
 
 from corpus_twitter import CorpusTE
-from textcnn import TextCNNConfig, TextCNN
+from textcnn import TextCNNConfig, TextCNN,  ETextCNN
 from trainer import Trainer
 from utils import load_glove_embedding
 
@@ -23,7 +23,7 @@ def train():
 
     emb = load_glove_embedding('data/twitter_hashtag/1kthashtag.glove')
 
-    model = TextCNN(config=config, pre_trained_emb=emb)
+    model = ETextCNN(config=config, pre_trained_emb=emb)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
