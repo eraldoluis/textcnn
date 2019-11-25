@@ -5,6 +5,8 @@ import copy
 import numpy as np
 import pandas
 
+from sklearn.model_selection import StratifiedShuffleSplit
+
 
 class Corpus(object):
 
@@ -76,6 +78,60 @@ class Corpus(object):
             # remove test examples
             x_data = x_data[:split]
             y_data = y_data[:split]
+
+        # create new corpus for train split
+        train = copy.copy(self)
+        train.x_data = x_data
+        train.y_data = y_data
+        splits.insert(0, train)
+
+        return splits
+
+    def stratified_split(self, valid_split=0.3, test_split=None):
+        """
+        Split this corpus into two or three other corpus: train, validation and test. Splits are stratified regarding
+        label distribution.
+
+        :param valid_split:
+        :param test_split:
+        :return:
+        """
+        len_data = len(self.x_data)
+
+        x_data = self.x_data
+        y_data = self.y_data
+
+        splits = []
+
+        # test split
+        if test_split is not None:
+            sss = StratifiedShuffleSplit(n_splits=1, test_size=test_split)
+
+            # create a new corpus for test split
+            test = copy.copy(self)
+            train_idxs, test_idxs = next(sss.split(x_data, y_data))
+            test.x_data = x_data[test_idxs]
+            test.y_data = y_data[test_idxs]
+            splits.insert(0, test)
+
+            # remove test examples
+            x_data = x_data[train_idxs]
+            y_data = y_data[train_idxs]
+
+        # validation split
+        if valid_split is not None:
+            sss = StratifiedShuffleSplit(n_splits=1, test_size=valid_split)
+
+            # create new corpus for validation split
+            valid = copy.copy(self)
+            train_idxs, test_idxs = next(sss.split(x_data, y_data))
+            valid.x_data = x_data[test_idxs]
+            valid.y_data = y_data[test_idxs]
+            splits.insert(0, valid)
+
+            # remove test examples
+            x_data = x_data[train_idxs]
+            y_data = y_data[train_idxs]
 
         # create new corpus for train split
         train = copy.copy(self)

@@ -30,6 +30,10 @@ class TextCNNConfig(object):
         self.target_class = 1
         self.dev_split = 0.1  # percentage of dev data
 
+        self.stratified = False
+        self.balance = False
+        self.stratified_batch = False
+
         self.cuda_device = 0  # cuda device to be used when available
 
 

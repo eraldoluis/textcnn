@@ -18,7 +18,8 @@ def train():
     config = TextCNNConfig()
 
     config.num_epochs = 50
-    config.batch_size = 256
+    config.batch_size = 128
+    config.stratified = True
 
     emb = load_glove_embedding('data/twitter_hashtag/1kthashtag.glove')
 
@@ -31,7 +32,10 @@ def train():
     metrics = {'accuracy': skmetrics.accuracy_score, 'fscore_class1': skmetrics.f1_score}
 
     corpus = CorpusTE(train_file=dataset_file, vocab_file=vocab_file)
-    train_corpus, valid_corpus = corpus.split(valid_split=0.2)
+    if config.stratified:
+        train_corpus, valid_corpus = corpus.stratified_split(valid_split=0.2)
+    else:
+        train_corpus, valid_corpus = corpus.split(valid_split=0.2)
 
     t = Trainer(train_corpus=train_corpus, valid_corpus=valid_corpus, test_corpus=None, model=model, config=config,
                 criterion=criterion, optimizer=optimizer, verbose=True, output_dir=output_dir, train_metrics=metrics,

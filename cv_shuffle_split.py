@@ -2,6 +2,7 @@ import datetime
 import os
 from pprint import pprint
 
+import torch
 from torch import nn, optim
 
 from corpus_twitter import CorpusTE
@@ -12,7 +13,7 @@ from utils import load_glove_embedding
 from sklearn import metrics as skmetrics
 
 
-def run(config, output_dir, num_splits=5, valid_split=0.2, patience=0):
+def run(config, output_dir, num_splits=5, valid_split=0.2, patience=0, balance=False):
     vocab_file = 'data/twitter_hashtag/1kthashtag.vocab'
     dataset_file = 'data/DataSetsEraldo/dataSetSupernatural.txt'
     emb = load_glove_embedding('data/twitter_hashtag/1kthashtag.glove')
@@ -27,7 +28,10 @@ def run(config, output_dir, num_splits=5, valid_split=0.2, patience=0):
         model = TextCNN(config=config, pre_trained_emb=emb)
         optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
 
-        train_corpus, valid_corpus = corpus.split(valid_split=valid_split)
+        if config.stratified:
+            train_corpus, valid_corpus = corpus.stratified_split(valid_split=valid_split)
+        else:
+            train_corpus, valid_corpus = corpus.split(valid_split=valid_split)
 
         output_dir_split = os.path.join(output_dir, "split{}".format(split))
 
@@ -43,5 +47,8 @@ if __name__ == '__main__':
     config = TextCNNConfig()
     config.num_epochs = 40
     config.batch_size = 128
+    config.stratified = False
+    config.balanced = False
+    config.stratified_batch = True
     output_dir = "results/out_cv_shuffle_split_{}".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f"))
-    run(config, output_dir, num_splits=10, patience=5)
+    run(config, output_dir, num_splits=20, patience=5)

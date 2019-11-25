@@ -25,6 +25,8 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
+from sampler import BalancedSampler, StratifiedBatchSampler
+
 
 class Trainer(object):
 
@@ -132,9 +134,21 @@ class Trainer(object):
         if self.output_dir:
             res_file = open(os.path.join(self.output_dir, 'res_perepoch.json'), 'wt')
 
+        sampler = None
+        batch_sampler = None
+        if self.config.balance:
+            sampler = BalancedSampler(self.train_data.tensors[1])
+        elif self.config.stratified_batch:
+            batch_sampler = StratifiedBatchSampler(self.train_data.tensors[1], self.config.batch_size)
+
         iteration = 0
         for epoch in range(self.num_epochs):
-            train_loader = DataLoader(self.train_data, batch_size=self.config.batch_size)
+
+            batch_size = self.config.batch_size
+            if batch_sampler is not None:
+                batch_size = 1
+            train_loader = DataLoader(self.train_data, batch_size=batch_size, sampler=sampler,
+                                      batch_sampler=batch_sampler)
 
             self.model.train()
             for x_batch, y_batch in tqdm(train_loader, desc="\t".join(tqdm_desc).format(epoch + 1, self.num_epochs)):
