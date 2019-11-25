@@ -1,14 +1,15 @@
 import datetime
 import os
+import torch
 from pprint import pprint
-
 from torch import nn, optim
-
+from corpus import Corpus
+from corpus_twitter_hashtags import TwitterHashtagCorpus
 from corpus_twitter import CorpusTE
 from textcnn import TextCNNConfig, TextCNN, ETextCNN
 from trainer import Trainer
 from utils import load_glove_embedding
-import torch
+
 from sklearn import metrics as skmetrics
 
 
@@ -26,7 +27,8 @@ def run(config, output_dir, num_splits=5, valid_split=0.2, patience=0):
     metrics = {'accuracy': skmetrics.accuracy_score, 'fscore_class1': skmetrics.f1_score}
 
     for split in range(1, num_splits + 1):
-        model = TextCNN(config=config, pre_trained_emb=emb)
+        model = ETextCNN(config=config, pre_trained_emb=emb)
+        model.encoder.use_pre_trained_layers('../results/out_rp_1kt_20191125-130924-229380/rep1/best_model.bin', False)
         optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
 
         train_corpus, valid_corpus = corpus.split(valid_split=valid_split)
@@ -44,13 +46,14 @@ def run(config, output_dir, num_splits=5, valid_split=0.2, patience=0):
     print(mean)
 
 
+
+
 if __name__ == '__main__':
 
     config = TextCNNConfig()
     config.num_epochs = 40
-    config.batch_size = 128
-    config.learning_rate = 1e-4
+    config.batch_size = 256
     config.kernel_sizes = [3, 4, 5]
-    config.hidden_dim = len(config.kernel_sizes) * config.num_filters
-    output_dir = "../../experiments/results/n-ne-nsub-345-out_cv_shuffle_split_kernel-sup{}".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f"))
-    run(config, output_dir, num_splits=10, patience=10)
+    config.num_classes = 125
+    output_dir = "../results/out_rp_1kt_{}".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f"))
+    run(config, output_dir, num_splits=5, patience=5)

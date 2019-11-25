@@ -67,7 +67,7 @@ class TextCNNEncoder(nn.Module):
         x = torch.cat(x, 1)
         return x
 
-    def load_pre_trained(self, emb_file, conv_file):
+    def load_pre_trained(self, file):
         """
         Carrega pesos das camadas de embedding e convolução.
 
@@ -75,19 +75,19 @@ class TextCNNEncoder(nn.Module):
         :param conv_file:
         :return:
         """
-        if not torch.cuda.is_available():
-            device = torch.device('cpu')
-        else:
-            device = torch.device('gpu')
-        # Embeddings
-        emb = torch.load(emb_file, map_location=device)
-        self.embedding.load_state_dict(emb)
-        # Conv. Filters
-        conv = torch.load(conv_file, map_location=device)
-        self.convs.load_state_dict(conv)
 
-    def use_pre_trained_layers(self, emb_file, conv_file, requires_grad):
-        self.load_pre_trained(emb_file, conv_file)
+        device = torch.device('cpu')
+        # Embeddings
+        model = torch.load(file, map_location=device)
+        print(model.keys())
+        self.load_state_dict()
+        #self.embedding.load_state_dict(model['encoder.embedding.weight'])
+        # Conv. Filters
+        #conv = torch.load(conv_file, map_location=device)
+        #self.convs.load_state_dict(model['encoder.convs'])
+
+    def use_pre_trained_layers(self, file, requires_grad):
+        self.load_pre_trained(file)
         self.embedding.requires_grad_(requires_grad)
         for c in self.convs:
             c.requires_grad_(requires_grad)

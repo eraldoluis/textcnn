@@ -131,7 +131,8 @@ class Trainer(object):
 
         if self.output_dir:
             res_file = open(os.path.join(self.output_dir, 'res_perepoch.json'), 'wt')
-
+##barbara
+        scheduler = torch.optim.lr_scheduler.CyclicLR(self.optimizer, base_lr=0.0001, max_lr=0.001)
         iteration = 0
         for epoch in range(self.num_epochs):
             train_loader = DataLoader(self.train_data, batch_size=self.config.batch_size)
@@ -148,7 +149,7 @@ class Trainer(object):
                 # backward propagation and update parameters
                 loss.backward()
                 self.optimizer.step()
-
+                scheduler.step()
                 iteration += len(x_batch)
 
             # evaluate on both training and test dataset
