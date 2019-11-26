@@ -54,5 +54,7 @@ if __name__ == '__main__':
     config.stratified = False
     config.balanced = True
     config.stratified_batch = False
-    output_dir = "results/out_cv_shuffle_split_{}".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f"))
-    run(config, output_dir, num_splits=20, patience=5)
+    for k in range(2, 11):
+        config.kernel_sizes = [k]
+        output_dir = "../results/textcc_kernels/out_cv_shuffle_split_{}k{}".format(k, datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f"))
+        run(config, output_dir, num_splits=3, patience=5)
