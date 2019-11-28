@@ -1,5 +1,0 @@
-{"improved": false, "epoch": 0, "iteration": 2347, "train": {"accuracy": 0.8005965061780997, "fscore_class1": 0.0}, "valid": {"accuracy": 0.7649063032367973, "fscore_class1": 0.0}}
-{"improved": false, "epoch": 1, "iteration": 4694, "train": {"accuracy": 0.8005965061780997, "fscore_class1": 0.0}, "valid": {"accuracy": 0.7649063032367973, "fscore_class1": 0.0}}
-{"improved": false, "epoch": 2, "iteration": 7041, "train": {"accuracy": 0.8091180230080954, "fscore_class1": 0.0967741935483871}, "valid": {"accuracy": 0.7649063032367973, "fscore_class1": 0.0}}
-{"improved": false, "epoch": 3, "iteration": 9388, "train": {"accuracy": 0.8014486578610993, "fscore_class1": 0.0}, "valid": {"accuracy": 0.7649063032367973, "fscore_class1": 0.0}}
-{"improved": false, "epoch": 4, "iteration": 11735, "train": {"accuracy": 0.8014486578610993, "fscore_class1": 0.0}, "valid": {"accuracy": 0.7649063032367973, "fscore_class1": 0.0}}

@@ -8,7 +8,7 @@ class TextCNNConfig(object):
     CNN Parameters
     """
 
-    def __init__(self, num_epochs=10, learning_rate=0.001):
+    def __init__(self, num_epochs=10, learning_rate=0.005):
         self.learning_rate = learning_rate  # learning rate
         self.num_epochs = num_epochs  # total number of epochs
 
@@ -26,15 +26,15 @@ class TextCNNConfig(object):
         self.batch_size = 128  # batch size for training
 
         self.num_classes = 2  # number of classes
-        self.target_names = ['--', '-', '=', '+', '++']
+        self.target_names = ['Nao', 'Sim']
         self.target_class = 1
-        self.dev_split = 0.1  # percentage of dev data
+        self.valid_split = 0.2
 
         self.stratified = False
         self.balance = False
         self.stratified_batch = False
 
-        self.cuda_device = 0  # cuda device to be used when available
+        self.cuda_device = -1
 
 
 class TextCNNEncoder(nn.Module):

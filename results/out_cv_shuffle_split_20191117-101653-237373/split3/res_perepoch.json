@@ -1,5 +1,0 @@
-{"improved": false, "epoch": 0, "iteration": 2347, "train": {"accuracy": 0.7976139752876011, "fscore_class1": 0.0}, "valid": {"accuracy": 0.7751277683134583, "fscore_class1": 0.0}}
-{"improved": true, "epoch": 1, "iteration": 4694, "train": {"accuracy": 0.8027268853855987, "fscore_class1": 0.05702647657841141}, "valid": {"accuracy": 0.7819420783645656, "fscore_class1": 0.07246376811594203}}
-{"improved": false, "epoch": 2, "iteration": 7041, "train": {"accuracy": 0.7988922028121006, "fscore_class1": 0.0}, "valid": {"accuracy": 0.7751277683134583, "fscore_class1": 0.0}}
-{"improved": true, "epoch": 3, "iteration": 9388, "train": {"accuracy": 0.8146570089475926, "fscore_class1": 0.18691588785046725}, "valid": {"accuracy": 0.7904599659284497, "fscore_class1": 0.15172413793103448}}
-{"improved": false, "epoch": 4, "iteration": 11735, "train": {"accuracy": 0.8155091606305922, "fscore_class1": 0.1845574387947269}, "valid": {"accuracy": 0.7904599659284497, "fscore_class1": 0.13986013986013987}}

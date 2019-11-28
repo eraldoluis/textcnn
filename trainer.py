@@ -32,12 +32,13 @@ class Trainer(object):
 
     def __init__(self, config, model, train_corpus, valid_corpus, test_corpus, criterion, optimizer, use_cuda=False,
                  output_dir=None, verbose=True, train_metrics=None, val_metrics=None, test_metrics=None,
-                 selection_metric=None):
+                 selection_metric=None, lr_scheduler=None):
         self.verbose = verbose
         self.train_metrics = train_metrics
         self.val_metrics = val_metrics
         self.test_metrics = test_metrics
         self.selection_metric = selection_metric
+        self.lr_scheduler = lr_scheduler
 
         self.use_cuda = use_cuda
 
@@ -132,7 +133,8 @@ class Trainer(object):
             self.model.cuda()
 
         if self.output_dir:
-            res_file = open(os.path.join(self.output_dir, 'res_perepoch.json'), 'wt')
+            res_perepoch_file = open(os.path.join(self.output_dir, 'res_perepoch.json'), 'wt')
+            res_periter_file = open(os.path.join(self.output_dir, 'res_periter.json'), 'wt')
 
         sampler = None
         batch_sampler = None
@@ -151,24 +153,46 @@ class Trainer(object):
                                       batch_sampler=batch_sampler)
 
             self.model.train()
+            running_loss = 0
+            num_it = 0
             for x_batch, y_batch in tqdm(train_loader, desc="\t".join(tqdm_desc).format(epoch + 1, self.num_epochs)):
                 if self.use_cuda:
                     x_batch, y_batch = x_batch.cuda(), y_batch.cuda()
 
                 self.optimizer.zero_grad()
-                outputs = self.model(x_batch)  # forward computation
+                outputs = self.model(x_batch)
                 loss = self.criterion(outputs, y_batch)
+
+                running_loss += loss.item()
 
                 # backward propagation and update parameters
                 loss.backward()
                 self.optimizer.step()
 
+                # evaluate on both training and test dataset
+                res_iter = {"epoch": epoch,
+                            "iteration": iteration,
+                            "lr": self.optimizer.param_groups[0]["lr"],
+                            "loss_iter": loss.item(),
+                            "loss_smooth": running_loss / (num_it + 1)}
+
+                if res_periter_file:
+                    res_periter_file.write(json.dumps(res_iter) + '\n')
+                    res_periter_file.flush()
+
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
+                    lr = self.optimizer.param_groups[0]["lr"]
+
                 iteration += len(x_batch)
+
+                num_it += 1
 
             # evaluate on both training and test dataset
             res_epoch = {"improved": False,
                          "epoch": epoch,
                          "iteration": iteration,
+                         "loss": running_loss / num_it,
                          "train": self.evaluate(self.train_data, self.train_metrics),
                          "valid": self.evaluate(self.valid_data, self.val_metrics)}
 
@@ -197,11 +221,11 @@ class Trainer(object):
                 print("*** Best Model according to %s ***" % self.selection_metric)
                 pprint(res_epoch)
 
-            if res_file:
-                res_file.write(json.dumps(res_epoch) + '\n')
-                res_file.flush()
+            if res_perepoch_file:
+                res_perepoch_file.write(json.dumps(res_epoch) + '\n')
+                res_perepoch_file.flush()
 
-            if patience > 0 and epoch - res["best"]["epoch"] > patience:
+            if 0 < patience < epoch - res["best"]["epoch"]:
                 if self.verbose:
                     print("Stopping on epoch {} due to no improvement since epoch {} (patience is {})".format(epoch,
                                                                                                               res[
@@ -210,8 +234,8 @@ class Trainer(object):
                                                                                                               patience))
                 break
 
-        if res_file:
-            res_file.close()
+        if res_perepoch_file:
+            res_perepoch_file.close()
 
         if self.output_dir:
             # Write best model results.

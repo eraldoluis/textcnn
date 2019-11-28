@@ -1,1 +1,0 @@
-{"selection_metric": 0.8523206751054851, "epoch": 13, "valid": {"accuracy": 0.9403747870528109, "fscore_class1": 0.8523206751054851}, "train": {"accuracy": 0.9842351938645079, "fscore_class1": 0.9594742606790799}, "iteration": 32858}
